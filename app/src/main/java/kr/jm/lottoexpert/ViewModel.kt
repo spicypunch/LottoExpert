@@ -17,16 +17,20 @@ class ViewModel @Inject constructor(
 
     val progressBarStatus = mutableStateOf(false)
 
-    var lottoNumbers = mutableStateOf(emptyList<Int>())
+    var lottoNumbers = mutableStateOf(emptyList<Pair<Int, Int>>())
 
-    private val list: MutableList<Int> = mutableListOf()
+    var recommendNumbers = mutableStateOf(emptyList<Int>())
 
-    fun getLottoNum() {
+    private val getLottoList: MutableList<Int> = mutableListOf()
+    private var mostFrequentNumbers: List<Pair<Int, Int>> = mutableListOf()
+
+    fun getLottoNum(startDrawerNumber: Int, endDrawerNumber: Int) {
         viewModelScope.launch {
             progressBarStatus.value = true
-            for (i in 1108..1109) {
+            for (i in startDrawerNumber..endDrawerNumber) {
                 val result = repository.getLottoNum(i.toString())
-                list.addAll(
+                Log.i("result", result.toString())
+                getLottoList.addAll(
                     listOf(
                         result.drwtNo1,
                         result.drwtNo2,
@@ -37,7 +41,22 @@ class ViewModel @Inject constructor(
                     )
                 )
             }
-            lottoNumbers.value = list
+            mostFrequentNumbers = getLottoList.groupingBy { it }.eachCount()
+                .toList()
+                .sortedByDescending { it.second }
+                .take(20)
+
+            lottoNumbers.value = mostFrequentNumbers
+            progressBarStatus.value = false
+        }
+    }
+
+    fun recommendLottoNumbers() {
+        viewModelScope.launch {
+            progressBarStatus.value = true
+            val lottoNumbers: List<Int> = mostFrequentNumbers.map { it.first }
+            val randomNumbers: List<Int> = lottoNumbers.shuffled().take(6)
+            recommendNumbers.value = randomNumbers
             progressBarStatus.value = false
         }
     }
