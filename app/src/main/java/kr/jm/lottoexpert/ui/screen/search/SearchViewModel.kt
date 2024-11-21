@@ -1,7 +1,5 @@
-package kr.jm.lottoexpert
+package kr.jm.lottoexpert.ui.screen.search
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +9,7 @@ import kr.jm.lottoexpert.repository.RepositoryImpl
 import javax.inject.Inject
 
 @HiltViewModel
-class ViewModel @Inject constructor(
+class SearchViewModel @Inject constructor(
     private val repository: RepositoryImpl
 ) : ViewModel() {
 
@@ -27,9 +25,9 @@ class ViewModel @Inject constructor(
     fun getLottoNum(startDrawerNumber: Int, endDrawerNumber: Int) {
         viewModelScope.launch {
             progressBarStatus.value = true
+            getLottoList.clear()
             for (i in startDrawerNumber..endDrawerNumber) {
                 val result = repository.getLottoNum(i.toString())
-                Log.i("result", result.toString())
                 getLottoList.addAll(
                     listOf(
                         result.drwtNo1,

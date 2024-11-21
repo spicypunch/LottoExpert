@@ -6,7 +6,7 @@ import android.os.Parcelable
 
 @Parcelize
 data class LottoNumber(
-    val bnusNo: Int, // 2
+    val bonusNo: Int, // 2
     val drwNo: Int, // 1109
     val drwNoDate: String, // 2024-03-02
     val drwtNo1: Int, // 10
