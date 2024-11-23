@@ -16,11 +16,12 @@ import kr.jm.lottoexpert.ui.theme.textColor
 @Composable
 fun DefaultButton(
     title: String,
-    onClick: () -> Unit) {
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
-            .height(64.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             containerColor = primaryColor
