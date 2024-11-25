@@ -23,8 +23,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kr.jm.lottoexpert.ui.component.CircularProgressBar
 import kr.jm.lottoexpert.ui.component.DefaultButton
@@ -34,36 +37,41 @@ import kr.jm.lottoexpert.ui.component.ListDialog
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SearchScreen(searchViewModel: SearchViewModel = hiltViewModel()) {
+    val state by searchViewModel.state
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    val progressBar by rememberSaveable {
-        searchViewModel.progressBarStatus
+    LaunchedEffect(state.message) {
+        if (state.message.isNotBlank()) {
+            snackbarHostState.showSnackbar(state.message, duration = SnackbarDuration.Short)
+            searchViewModel.onEvent(SearchScreenEvent.ClearMessage)
+        }
     }
-    val (startNum, setStartNum) = rememberSaveable {
-        mutableStateOf("")
-    }
-    val (endNum, setEndNum) = rememberSaveable {
-        mutableStateOf("")
-    }
+
+    SearchScreenContent(
+        state = state,
+        snackbarHostState = snackbarHostState,
+        scope = scope,
+        onEvent = searchViewModel::onEvent
+    )
+}
+
+@Composable
+fun SearchScreenContent(
+    state: SearchScreenState,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    onEvent: (SearchScreenEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var showListDialog by remember {
         mutableStateOf(false)
     }
-    val lottoNumbers = searchViewModel.lottoNumbers
-
-    val snackbarHostState = remember { SnackbarHostState() }
-//    LaunchedEffect(Unit) {
-//        val message = searchViewModel.message.value
-//        if (message.isNotBlank()) {
-//
-//            snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
-//        }
-//    }
-
-    val scope = rememberCoroutineScope()
-    if (progressBar) {
+    if (state.isLoading) {
         CircularProgressBar()
     } else {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = modifier.fillMaxSize()
         ) {
             Scaffold { innerPadding ->
                 Column(
@@ -76,76 +84,98 @@ fun SearchScreen(searchViewModel: SearchViewModel = hiltViewModel()) {
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = modifier.fillMaxWidth()
                     ) {
                         DefaultTextField(
-                            value = startNum,
-                            onValueChange = setStartNum,
+                            value = state.startNum,
+                            onValueChange = { onEvent(SearchScreenEvent.UpdateStartNum(it)) },
                             placeholderText = "회차 시작",
-                            modifier = Modifier.weight(1f)
+                            modifier = modifier.weight(1f)
                         )
                         DefaultTextField(
-                            value = endNum,
-                            onValueChange = setEndNum,
+                            value = state.endNum,
+                            onValueChange = { onEvent(SearchScreenEvent.UpdateEndNum(it)) },
                             placeholderText = "회차 끝",
-                            modifier = Modifier.weight(1f)
+                            modifier = modifier.weight(1f)
                         )
                     }
-                    DefaultButton("조회하기", modifier = Modifier.height(56.dp)) {
-                        if (startNum.isBlank() || endNum.isBlank()) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("빈칸을 채워주세요")
+                    DefaultButton("조회하기", modifier = modifier.height(56.dp)) {
+                        when {
+                            state.startNum.isBlank() || state.endNum.isBlank() -> {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("빈칸을 채워주세요")
+                                }
                             }
-                        } else {
-                            val startNumber = startNum.toIntOrNull()
-                            val endNumber = endNum.toIntOrNull()
 
-                            if (startNumber == null || endNumber == null) {
+                            state.startNum.toIntOrNull() == null || state.endNum.toIntOrNull() == null -> {
                                 scope.launch {
                                     snackbarHostState.showSnackbar("유효한 숫자를 입력해주세요")
                                 }
-                            } else if (startNumber > endNumber) {
+                            }
+
+                            state.startNum.toInt() > state.endNum.toInt() -> {
                                 scope.launch {
                                     snackbarHostState.showSnackbar("시작 회차가 끝 회차보다 큽니다")
                                 }
-                            } else {
-                                searchViewModel.getLottoNum(startNumber, endNumber)
+                            }
+
+                            else -> {
+                                onEvent(
+                                    SearchScreenEvent.GetLottoNum(
+                                        state.startNum.toInt(),
+                                        state.endNum.toInt()
+                                    )
+                                )
                                 showListDialog = true
                             }
                         }
                     }
                 }
-            }
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 16.dp)
-            )
-            if (showListDialog) {
-                val title = "${startNum}회차 ~ ${endNum}회차"
-                ListDialog(
-                    lottoNumbers.value,
-                    buttonEnabled = true,
-                    title = title,
-                    buttonTitle = "저장하기",
-                    onClosed = {
-                        showListDialog = false
-                    },
-                    onButtonClicked = {
-                        searchViewModel.insertItem(
-                            name = title,
-                            startNum = startNum,
-                            endNum = endNum,
-                            lottoNumbers = lottoNumbers.value
-                        )
-                        showListDialog = false
-                        scope.launch {
-                            snackbarHostState.showSnackbar("저장되었습니다")
-                        }
-                    }
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 16.dp)
                 )
+                if (showListDialog) {
+                    val title = "${state.startNum}회차 ~ ${state.endNum}회차"
+                    ListDialog(
+                        lottoNumbers = state.lottoNumbers,
+                        buttonEnabled = true,
+                        title = title,
+                        buttonTitle = "저장하기",
+                        onClosed = {
+                            showListDialog = false
+                        },
+                        onButtonClicked = {
+                            onEvent(SearchScreenEvent.InsertItem(
+                                name = title,
+                                startNum = state.startNum,
+                                endNum = state.endNum,
+                                lottoNumbers = state.lottoNumbers
+                            ))
+                            showListDialog = false
+                        }
+                    )
+                }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SearchScreenPreview() {
+    val previewState = SearchScreenState(
+        startNum = "1",
+        endNum = "5",
+        lottoNumbers = listOf(Pair(1, 3), Pair(2, 4), Pair(3, 2))
+    )
+
+    SearchScreenContent(
+        state = previewState,
+        snackbarHostState = remember { SnackbarHostState() },
+        scope = rememberCoroutineScope(),
+        onEvent = {}
+    )
 }

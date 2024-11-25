@@ -15,15 +15,27 @@ import javax.inject.Inject
 class RecordViewModel @Inject constructor(
     private val repository: RepositoryImpl
 ) : ViewModel() {
+    private var _state = mutableStateOf(RecordScreenState())
+    val state: State<RecordScreenState> = _state
 
-    private var _allItems = mutableStateOf(emptyList<ItemEntity>())
-    val allItems: State<List<ItemEntity>> = _allItems
+    init {
+        onEvent(RecordScreenEvent.LoadItems)
+    }
 
-    fun getAllItems() {
+    fun onEvent(event: RecordScreenEvent) {
+        when (event) {
+            is RecordScreenEvent.DeleteItem -> deleteItem(event.item)
+            RecordScreenEvent.LoadItems -> getAllItems()
+        }
+    }
+
+    private fun getAllItems() {
         viewModelScope.launch {
             try {
                 repository.getAllItems().collect() { result ->
-                    _allItems.value = result
+                    _state.value = _state.value.copy(
+                        items = result
+                    )
                 }
             } catch (e:Exception) {
                 Log.e("RecordViewModel", "getAllItems: $e")
@@ -31,7 +43,7 @@ class RecordViewModel @Inject constructor(
         }
     }
 
-    fun deleteItem(itemEntity: ItemEntity) {
+    private fun deleteItem(itemEntity: ItemEntity) {
         viewModelScope.launch {
             try {
                 repository.deleteItem(itemEntity)
