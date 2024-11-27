@@ -15,4 +15,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "LottoExpert"
 include(":app")
- 
+include(":domain")
+include(":data")
+include(":common-ui")
+include(":feature-record")
+include(":feature-search")

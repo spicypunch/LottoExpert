@@ -3,7 +3,6 @@ package kr.jm.lottoexpert
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,16 +11,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kr.jm.lottoexpert.ui.theme.bgColor
-import kr.jm.lottoexpert.ui.component.MyBottomNavigation
-import kr.jm.lottoexpert.ui.screen.record.RecordScreen
-import kr.jm.lottoexpert.ui.screen.search.SearchScreen
+import kr.jm.feature_record.recordScreen
+import kr.jm.feature_search.searchRoute
+import kr.jm.feature_search.searchScreen
+import kt.jm.common_ui.BottomNavItem
+import kt.jm.common_ui.MyBottomNavigation
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -41,31 +39,32 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val navController: NavHostController = rememberNavController()
+    val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+
     Scaffold(
-        modifier = Modifier.background(bgColor),
         bottomBar = {
-            if (currentRoute != null && showBottomBar(currentRoute)) {
-                MyBottomNavigation(navController)
+            if (currentRoute in listOf(BottomNavItem.Search.route, BottomNavItem.Record.route)) {
+                MyBottomNavigation(
+                    items = listOf(BottomNavItem.Search, BottomNavItem.Record),
+                    selectedRoute = currentRoute ?: BottomNavItem.Search.route,
+                    onItemSelected = { route -> navController.navigate(route) }
+                )
             }
         }
-    ) {
-        Box(modifier = Modifier.padding(it).background(bgColor).fillMaxSize()) {
-            NavHost(navController = navController, startDestination = "search") {
-                composable(route = "search") {
-                    SearchScreen()
-                }
-                composable(route = "record") {
-                    RecordScreen()
-                }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            NavHost(
+                navController = navController,
+                startDestination = searchRoute
+            ) {
+                searchScreen()
+                recordScreen()
             }
         }
     }
-}
-
-
-
-fun showBottomBar(currentRoute: String?): Boolean {
-    return currentRoute in listOf("search", "record")
 }
