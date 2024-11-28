@@ -18,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kr.jm.feature_record.recordScreen
 import kr.jm.feature_search.searchRoute
 import kr.jm.feature_search.searchScreen
+import kr.jm.webview.webViewScreen
 import kt.jm.common_ui.BottomNavItem
 import kt.jm.common_ui.MyBottomNavigation
 
@@ -46,7 +47,11 @@ fun App() {
         bottomBar = {
             if (currentRoute in listOf(BottomNavItem.Search.route, BottomNavItem.Record.route)) {
                 MyBottomNavigation(
-                    items = listOf(BottomNavItem.Search, BottomNavItem.Record),
+                    items = listOf(
+                        BottomNavItem.Search,
+                        BottomNavItem.WebView,
+                        BottomNavItem.Record
+                    ),
                     selectedRoute = currentRoute ?: BottomNavItem.Search.route,
                     onItemSelected = { route -> navController.navigate(route) }
                 )
@@ -63,6 +68,7 @@ fun App() {
                 startDestination = searchRoute
             ) {
                 searchScreen()
+                webViewScreen()
                 recordScreen()
             }
         }

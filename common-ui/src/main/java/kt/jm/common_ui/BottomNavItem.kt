@@ -2,8 +2,10 @@ package kt.jm.common_ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -16,6 +18,13 @@ sealed class BottomNavItem(
     data object Search : BottomNavItem(
         route = "search",
         title = "검색",
+        basicIcon = Icons.Filled.Home,
+        selectedIcon = Icons.Outlined.Home
+    )
+
+    data object WebView : BottomNavItem(
+        route = "webView",
+        title = "당첨 번호",
         basicIcon = Icons.Filled.Search,
         selectedIcon = Icons.Outlined.Search
     )

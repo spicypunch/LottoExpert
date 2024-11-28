@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":common-ui"))
     implementation(project(":feature-search"))
     implementation(project(":feature-record"))
+    implementation(project(":feature-webview"))
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
