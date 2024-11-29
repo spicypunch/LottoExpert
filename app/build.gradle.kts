@@ -4,8 +4,8 @@ plugins {
     id("kotlin-parcelize")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
-//    id("com.google.gms.google-services")
-//    id("com.google.firebase.crashlytics")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -89,11 +89,9 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
-    // Admob
-//    implementation("com.google.android.gms:play-services-ads:22.6.0")
-
     // Firebase
-//    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
-//    implementation("com.google.firebase:firebase-analytics")
-//    implementation("com.google.firebase:firebase-crashlytics")
+//    implementation("com.google.android.gms:play-services-ads:23.5.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
 }
