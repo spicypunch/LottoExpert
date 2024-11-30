@@ -18,6 +18,7 @@
 <image src="https://github.com/user-attachments/assets/3c6e7bbb-0616-495b-99e5-f322b85a0e36" width=200>
 <br>
 - 가장 최근 당첨 번호를 볼 수 있는 웹뷰입니다.
+
 ## 기술 스택
 - Clean Architecture
 - MultiModule
