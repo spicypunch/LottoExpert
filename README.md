@@ -8,6 +8,7 @@
 <br>
 - 조회할 회차를 입력하면 그 범위 내의 당첨 번호 통계가 출력됩니다.
 - 조회한 회차를 저장할 수 있습니다.
+- 
 <br>
 <image src="https://github.com/user-attachments/assets/dfc60536-0758-42db-8ea4-aea4f1f48acd" width=200>
 <image src="https://github.com/user-attachments/assets/9092a4df-47c2-477f-9628-e742fe94f515" width=200>
@@ -15,6 +16,7 @@
 - 저장한 회차 목록입니다.
 - 원하는 회차를 삭제할 수 있습니다.
 <br>
+
 <image src="https://github.com/user-attachments/assets/3c6e7bbb-0616-495b-99e5-f322b85a0e36" width=200>
 <br>
 - 가장 최근 당첨 번호를 볼 수 있는 웹뷰입니다.
