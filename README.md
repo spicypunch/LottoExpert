@@ -19,6 +19,7 @@
 <image src="https://github.com/user-attachments/assets/9092a4df-47c2-477f-9628-e742fe94f515" width=200>
 
 <br>
+
 - 저장한 회차 목록입니다.
 - 원하는 회차를 삭제할 수 있습니다.
 
