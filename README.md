@@ -1,8 +1,7 @@
 # 로또 번호 통계
 
 ## 모듈 구조
-<image src="https://github.com/user-attachments/assets/261520a1-2c80-4e74-9047-d24fd127cbd8" width=2000>
-
+![Untitled diagram-2024-12-03-161205](https://github.com/user-attachments/assets/60320729-38ef-4cfe-a8e6-97ff6f934a2f)
 
 ## 기술 스택
 - Clean Architecture
