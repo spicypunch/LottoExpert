@@ -31,6 +31,10 @@
   
 - 가장 최근 당첨 번호를 볼 수 있는 웹뷰입니다.
 
+## 모듈 구조
+<image src="https://github.com/user-attachments/assets/261520a1-2c80-4e74-9047-d24fd127cbd8" width=200>
+
+
 ## 기술 스택
 - Clean Architecture
 - MultiModule
