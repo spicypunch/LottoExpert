@@ -1,5 +1,16 @@
 # 로또 번호 통계
 
+## 모듈 구조
+<image src="https://github.com/user-attachments/assets/261520a1-2c80-4e74-9047-d24fd127cbd8" width=2000>
+
+
+## 기술 스택
+- Clean Architecture
+- MultiModule
+- Jetpack Compose
+- Hilt
+- Room
+
 ## 프로젝트 소개
 "로또 번호 통계"는 사용자가 입력한 회차 범위 내에서 가장 많이 당첨된 로또 번호를 분석하여 보여주는 앱입니다. 또한, 최신 당첨 번호를 확인할 수 있는 웹뷰 기능과 조회한 회차 기록을 저장하는 기능을 제공합니다.
 
@@ -30,14 +41,3 @@
 <br>
   
 - 가장 최근 당첨 번호를 볼 수 있는 웹뷰입니다.
-
-## 모듈 구조
-<image src="https://github.com/user-attachments/assets/261520a1-2c80-4e74-9047-d24fd127cbd8" width=2000>
-
-
-## 기술 스택
-- Clean Architecture
-- MultiModule
-- Jetpack Compose
-- Hilt
-- Room
