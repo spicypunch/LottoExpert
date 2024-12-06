@@ -3,6 +3,9 @@
 ## 모듈 구조
 ![Untitled diagram-2024-12-03-161205](https://github.com/user-attachments/assets/60320729-38ef-4cfe-a8e6-97ff6f934a2f)
 
+## 플레이 스토어
+[![Play Store](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=kr.jm.lottoexpert)
+
 ## 기술 스택
 - Clean Architecture
 - MultiModule
