@@ -1,34 +1,29 @@
 package kr.jm.feature_search
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kr.jm.domain.model.ItemEntity
-import kr.jm.domain.repository.Repository
+import kr.jm.domain.usecase.GetLottoNumberUseCase
+import kr.jm.domain.usecase.SaveLottoItemUseCase
+import kr.jm.domain.util.Result
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val repository: Repository
+    private val getLottoNumberUseCase: GetLottoNumberUseCase,
+    private val saveLottoItemUseCase: SaveLottoItemUseCase,
 ) : ViewModel() {
     private var _state = mutableStateOf(SearchScreenState())
     val state: State<SearchScreenState> = _state
-
-    private val getLottoList: MutableList<Int> = mutableListOf()
-    private var mostFrequentNumbers: List<Pair<Int, Int>> = mutableListOf()
 
     fun onEvent(event: SearchScreenEvent) {
         when (event) {
             is SearchScreenEvent.ShowMessage -> showMessage(event.message)
             SearchScreenEvent.ClearMessage -> clearMessage()
-            is SearchScreenEvent.GetLottoNum -> getLottoNum(event.startNumber, event.endNumber)
+            is SearchScreenEvent.GetLottoNum -> getLottoNumbers(event.startNumber, event.endNumber)
             is SearchScreenEvent.InsertItem -> insertItem(
                 event.name,
                 event.startNum,
@@ -69,42 +64,22 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    private fun getLottoNum(startNumber: Int, endNumber: Int) {
+    private fun getLottoNumbers(startNumber: Int, endNumber: Int) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(
-                isLoading = true
-            )
-            try {
-                getLottoList.clear()
-                val deferredResults = (startNumber..endNumber).map { drawNumber ->
-                    async { repository.getLottoNum(drawNumber.toString()) }
-                }
-                val results = deferredResults.awaitAll()
-                results.forEach { result ->
-                    getLottoList.addAll(
-                        listOf(
-                            result.drwtNo1,
-                            result.drwtNo2,
-                            result.drwtNo3,
-                            result.drwtNo4,
-                            result.drwtNo5,
-                            result.drwtNo6
-                        )
+            _state.value = _state.value.copy(isLoading = true)
+            when (val result = getLottoNumberUseCase(startNumber, endNumber)) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        lottoNumbers = result.data,
+                        isLoading = false
                     )
                 }
-                mostFrequentNumbers = getLottoList.groupingBy { it }.eachCount()
-                    .toList()
-                    .sortedByDescending { it.second }
-                _state.value = _state.value.copy(
-                    lottoNumbers = mostFrequentNumbers
-                )
-            } catch (e: Exception) {
-                Log.e("SearchViewModel", "getLottoNum: $e")
-                showMessage("값을 가져오는데 실패하였습니다")
-            } finally {
-                _state.value = _state.value.copy(
-                    isLoading = false
-                )
+                is Result.Error -> {
+                    _state.value = _state.value.copy(
+                        message = "값을 가져오는데 실패하였습니다",
+                        isLoading = false
+                    )
+                }
             }
         }
     }
@@ -116,26 +91,18 @@ class SearchViewModel @Inject constructor(
         lottoNumbers: List<Pair<Int, Int>>
     ) {
         viewModelScope.launch {
-            if (isItemExists(startNum, endNum)) {
-                showMessage("이미 저장한 회차입니다")
-            } else {
-                val itemEntity = ItemEntity(
-                    name = name,
-                    startNum = startNum,
-                    endNum = endNum,
-                    lottoNumbers = lottoNumbers
-                )
-                try {
-                    repository.insertItem(itemEntity)
-                    showMessage("저장되었습니다")
-                } catch (e: Exception) {
-                    Log.e("SearchViewModel", "insertItem: $e")
+            when (val result = saveLottoItemUseCase(name, startNum, endNum, lottoNumbers)) {
+                is Result.Success -> {
+                    _state.value = _state.value.copy(
+                        message = "저장되었습니다"
+                    )
+                }
+                is Result.Error -> {
+                    _state.value = _state.value.copy(
+                        message = result.exception.message ?: "저장에 실패했습니다"
+                    )
                 }
             }
         }
-    }
-
-    private suspend fun isItemExists(startNum: String, endNum: String): Boolean {
-        return repository.getItem(startNum, endNum).firstOrNull() != null
     }
 }

@@ -53,8 +53,8 @@ fun ListDialog(
                 ) {
                     items(lottoNumbers) { item ->
                         ListItem(
-                            headlineContent = { Text("번호: ${item.first}") },
-                            supportingContent = { Text("당첨 횟수: ${item.second}") },
+                            headlineContent = { Text("번호: ${item.first.toInt()}") },
+                            supportingContent = { Text("당첨 횟수: ${item.second.toInt()}") },
                         )
                     }
                 }

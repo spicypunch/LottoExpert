@@ -9,14 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,8 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kr.jm.domain.model.ItemEntity
 import kt.jm.common_ui.ListDialog
 
@@ -36,12 +35,17 @@ fun RecordScreen(
 ) {
     val state by recordViewModel.state
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(state.message) {
+        if (state.message.isNotBlank()) {
+            snackbarHostState.showSnackbar(state.message, duration = SnackbarDuration.Short)
+            recordViewModel.onEvent(RecordScreenEvent.ClearMessage)
+        }
+    }
 
     RecordScreenContent(
         state = state,
         snackbarHostState = snackbarHostState,
-        scope = scope,
         onEvent = recordViewModel::onEvent
     )
 }
@@ -50,7 +54,6 @@ fun RecordScreen(
 fun RecordScreenContent(
     state: RecordScreenState,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope,
     onEvent: (RecordScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -59,7 +62,6 @@ fun RecordScreenContent(
             itemsIndexed(state.items) { index, item ->
                 ItemList(item = item, lastItem = index == state.items.lastIndex, onDelete = {
                     onEvent(RecordScreenEvent.DeleteItem(item))
-                    scope.launch { snackbarHostState.showSnackbar("삭제되었습니다") }
                 })
             }
         }
@@ -137,7 +139,6 @@ fun RecordScreenPreview() {
     RecordScreenContent(
         state = previewState,
         snackbarHostState = remember { SnackbarHostState() },
-        scope = rememberCoroutineScope(),
         onEvent = {}
     )
 
