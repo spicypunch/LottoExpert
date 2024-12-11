@@ -23,6 +23,7 @@ class SearchViewModel @Inject constructor(
         when (event) {
             is SearchScreenEvent.ShowMessage -> showMessage(event.message)
             SearchScreenEvent.ClearMessage -> clearMessage()
+            SearchScreenEvent.CloseDialog -> closeDialog()
             is SearchScreenEvent.GetLottoNum -> getLottoNumbers(event.startNumber, event.endNumber)
             is SearchScreenEvent.InsertItem -> insertItem(
                 event.name,
@@ -30,8 +31,10 @@ class SearchViewModel @Inject constructor(
                 event.endNum,
                 event.lottoNumbers
             )
+
             is SearchScreenEvent.UpdateStartNum -> updateStartNum(event.startNum)
             is SearchScreenEvent.UpdateEndNum -> updateEndNum(event.endNum)
+            is SearchScreenEvent.ValidateInput -> validateInput(event.startNum, event.endNum)
         }
 
     }
@@ -50,9 +53,9 @@ class SearchViewModel @Inject constructor(
 
     private fun showMessage(message: String) {
         viewModelScope.launch {
-           _state.value = _state.value.copy(
-               message = message
-           )
+            _state.value = _state.value.copy(
+                message = message
+            )
         }
     }
 
@@ -64,6 +67,14 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    private fun closeDialog() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(
+                showDialog = false
+            )
+        }
+    }
+
     private fun getLottoNumbers(startNumber: Int, endNumber: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
@@ -71,9 +82,11 @@ class SearchViewModel @Inject constructor(
                 is Result.Success -> {
                     _state.value = _state.value.copy(
                         lottoNumbers = result.data,
-                        isLoading = false
+                        isLoading = false,
+                        showDialog = true
                     )
                 }
+
                 is Result.Error -> {
                     _state.value = _state.value.copy(
                         message = "값을 가져오는데 실패하였습니다",
@@ -97,6 +110,7 @@ class SearchViewModel @Inject constructor(
                         message = "저장되었습니다"
                     )
                 }
+
                 is Result.Error -> {
                     _state.value = _state.value.copy(
                         message = result.exception.message ?: "저장에 실패했습니다"
@@ -104,5 +118,23 @@ class SearchViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun validateInput(startNum: String, endNum: String) {
+        when {
+            startNum.isBlank() || endNum.isBlank() -> {
+                showMessage("빈칸을 채워주세요")
+            }
+            startNum.toIntOrNull() == null || endNum.toIntOrNull() == null -> {
+                showMessage("유효한 숫자를 입력해주세요")
+            }
+            startNum.toInt() > endNum.toInt() -> {
+                showMessage("시작 회차가 끝 회차보다 큽니다")
+            }
+            else -> {
+                onEvent(SearchScreenEvent.GetLottoNum(startNum.toInt(), endNum.toInt()))
+            }
+        }
+
     }
 }

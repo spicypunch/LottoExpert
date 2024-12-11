@@ -16,17 +16,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kt.jm.common_ui.CircularProgressBar
 import kt.jm.common_ui.DefaultButton
 import kt.jm.common_ui.DefaultTextField
@@ -37,7 +32,6 @@ import kt.jm.common_ui.ListDialog
 fun SearchScreen(searchViewModel: SearchViewModel = hiltViewModel()) {
     val state by searchViewModel.state
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(state.message) {
         if (state.message.isNotBlank()) {
@@ -46,118 +40,87 @@ fun SearchScreen(searchViewModel: SearchViewModel = hiltViewModel()) {
         }
     }
 
-    SearchScreenContent(
-        state = state,
-        snackbarHostState = snackbarHostState,
-        scope = scope,
-        onEvent = searchViewModel::onEvent
-    )
+    if (state.isLoading) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            CircularProgressBar()
+        }
+    } else {
+        SearchScreenContent(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            onEvent = searchViewModel::onEvent
+        )
+    }
 }
 
 @Composable
 fun SearchScreenContent(
     state: SearchScreenState,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope,
     onEvent: (SearchScreenEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showListDialog by remember {
-        mutableStateOf(false)
-    }
-    if (state.isLoading) {
-        CircularProgressBar()
-    } else {
-        Box(
-            modifier = modifier.fillMaxSize()
-        ) {
-            Scaffold { innerPadding ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .padding(16.dp)
-                        .fillMaxSize()
+    Box(
+        modifier = modifier.fillMaxSize()
+    ) {
+        Scaffold { innerPadding ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+                    .fillMaxSize()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = modifier.fillMaxWidth()
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = modifier.fillMaxWidth()
-                    ) {
-                        DefaultTextField(
-                            value = state.startNum,
-                            onValueChange = { onEvent(SearchScreenEvent.UpdateStartNum(it)) },
-                            placeholderText = "회차 시작",
-                            modifier = modifier.weight(1f)
-                        )
-                        DefaultTextField(
-                            value = state.endNum,
-                            onValueChange = { onEvent(SearchScreenEvent.UpdateEndNum(it)) },
-                            placeholderText = "회차 끝",
-                            modifier = modifier.weight(1f)
-                        )
-                    }
-                    DefaultButton("조회하기", modifier = modifier.height(56.dp)) {
-                        when {
-                            state.startNum.isBlank() || state.endNum.isBlank() -> {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("빈칸을 채워주세요")
-                                }
-                            }
-
-                            state.startNum.toIntOrNull() == null || state.endNum.toIntOrNull() == null -> {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("유효한 숫자를 입력해주세요")
-                                }
-                            }
-
-                            state.startNum.toInt() > state.endNum.toInt() -> {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("시작 회차가 끝 회차보다 큽니다")
-                                }
-                            }
-
-                            else -> {
-                                onEvent(
-                                    SearchScreenEvent.GetLottoNum(
-                                        state.startNum.toInt(),
-                                        state.endNum.toInt()
-                                    )
-                                )
-                                showListDialog = true
-                            }
-                        }
-                    }
-                }
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 16.dp)
-                )
-                if (showListDialog) {
-                    val title = "${state.startNum}회차 ~ ${state.endNum}회차"
-                    ListDialog(
-                        lottoNumbers = state.lottoNumbers,
-                        buttonEnabled = true,
-                        title = title,
-                        buttonTitle = "저장하기",
-                        onClosed = {
-                            showListDialog = false
-                        },
-                        onButtonClicked = {
-                            onEvent(
-                                SearchScreenEvent.InsertItem(
-                                    name = title,
-                                    startNum = state.startNum,
-                                    endNum = state.endNum,
-                                    lottoNumbers = state.lottoNumbers
-                                )
-                            )
-                            showListDialog = false
-                        }
+                    DefaultTextField(
+                        value = state.startNum,
+                        onValueChange = { onEvent(SearchScreenEvent.UpdateStartNum(it)) },
+                        placeholderText = "회차 시작",
+                        modifier = modifier.weight(1f)
+                    )
+                    DefaultTextField(
+                        value = state.endNum,
+                        onValueChange = { onEvent(SearchScreenEvent.UpdateEndNum(it)) },
+                        placeholderText = "회차 끝",
+                        modifier = modifier.weight(1f)
                     )
                 }
+                DefaultButton("조회하기", modifier = modifier.height(56.dp)) {
+                    onEvent(SearchScreenEvent.ValidateInput(state.startNum, state.endNum))
+                }
+            }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp)
+            )
+            if (state.showDialog) {
+                val title = "${state.startNum}회차 ~ ${state.endNum}회차"
+                ListDialog(
+                    lottoNumbers = state.lottoNumbers,
+                    buttonEnabled = true,
+                    title = title,
+                    buttonTitle = "저장하기",
+                    onClosed = {
+                        onEvent(SearchScreenEvent.CloseDialog)
+                    },
+                    onButtonClicked = {
+                        onEvent(
+                            SearchScreenEvent.InsertItem(
+                                name = title,
+                                startNum = state.startNum,
+                                endNum = state.endNum,
+                                lottoNumbers = state.lottoNumbers
+                            )
+                        )
+                        onEvent(SearchScreenEvent.CloseDialog)
+                    }
+                )
             }
         }
     }
@@ -175,7 +138,6 @@ fun SearchScreenPreview() {
     SearchScreenContent(
         state = previewState,
         snackbarHostState = remember { SnackbarHostState() },
-        scope = rememberCoroutineScope(),
         onEvent = {}
     )
 }
