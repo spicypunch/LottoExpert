@@ -1,7 +1,8 @@
 # 로또 번호 통계
 
 ## 모듈 구조
-![Untitled diagram-2024-12-03-161205](https://github.com/user-attachments/assets/60320729-38ef-4cfe-a8e6-97ff6f934a2f)
+![Untitled diagram-2024-12-10-074328](https://github.com/user-attachments/assets/9d59a991-d978-41d5-99db-8a7079d659de)
+
 
 ## 플레이 스토어
 [![Play Store](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=kr.jm.lottoexpert)
