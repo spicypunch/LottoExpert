@@ -5,7 +5,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kr.jm.domain.repository.Repository
 import javax.inject.Inject
-import kr.jm.domain.util.Result
 
 class GetLottoNumberUseCase @Inject constructor(
     private val repository: Repository
@@ -42,9 +41,9 @@ class GetLottoNumberUseCase @Inject constructor(
                 .toList()
                 .sortedByDescending { it.second }
 
-            Result.Success(frequentNumbers)
+            Result.success(frequentNumbers)
         } catch (e: Exception) {
-            Result.Error(e)
+            Result.failure(e)
         }
     }
 }

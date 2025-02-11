@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import kr.jm.domain.model.ItemEntity
 import kr.jm.domain.usecase.DeleteItemUseCase
 import kr.jm.domain.usecase.GetAllItemsUseCase
-import kr.jm.domain.util.Result
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,33 +52,33 @@ class RecordViewModel @Inject constructor(
     private fun getAllItems() {
         viewModelScope.launch {
             getAllItemsUseCase().collect { result ->
-                when (result) {
-                    is Result.Success -> {
+                result.fold(
+                    onSuccess = {
                         _state.value = _state.value.copy(
-                            items = result.data
+                            items = it
                         )
+                    },
+                    onFailure = {
+                        Log.e("RecordViewModel", "getAllItems: ${it.message}")
                     }
-                    is Result.Error -> {
-                        Log.e("RecordViewModel", "getAllItems: ${result.exception.message}")
-                    }
-                }
+                )
             }
         }
     }
 
     private fun deleteItem(itemEntity: ItemEntity) {
         viewModelScope.launch {
-            when (val result = deleteItemUseCase(itemEntity)) {
-                is Result.Success -> {
+            val result = deleteItemUseCase(itemEntity)
+            result.fold(
+                onSuccess = {
                     _state.value = _state.value.copy(
-                        message = "삭제되었습니다"
+                        items = _state.value.items.filter { it != itemEntity }
                     )
+                },
+                onFailure = {
+                    Log.e("RecordViewModel", "deleteItem: ${it.message}")
                 }
-
-                is Result.Error -> {
-                    Log.e("RecordViewModel", "deleteItem: ${result.exception.message}")
-                }
-            }
+            )
         }
     }
 }

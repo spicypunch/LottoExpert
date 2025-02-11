@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kr.jm.domain.model.ItemEntity
 import kr.jm.domain.repository.Repository
-import kr.jm.domain.util.Result
 import javax.inject.Inject
 
 class GetAllItemsUseCase @Inject constructor(
@@ -13,11 +12,11 @@ class GetAllItemsUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): Flow<Result<List<ItemEntity>>> {
         return repository.getAllItems()
-            .map<List<ItemEntity>, Result<List<ItemEntity>>> { items ->
-                Result.Success(items)
+            .map { items ->
+                Result.success(items)
             }
             .catch { e ->
-                emit(Result.Error(Exception(e)))
+                emit(Result.failure(Exception(e)))
             }
     }
 }

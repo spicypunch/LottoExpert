@@ -8,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kr.jm.domain.usecase.GetLottoNumberUseCase
 import kr.jm.domain.usecase.SaveLottoItemUseCase
-import kr.jm.domain.util.Result
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,22 +77,22 @@ class SearchViewModel @Inject constructor(
     private fun getLottoNumbers(startNumber: Int, endNumber: Int) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            when (val result = getLottoNumberUseCase(startNumber, endNumber)) {
-                is Result.Success -> {
+            val result = getLottoNumberUseCase(startNumber, endNumber)
+            result.fold(
+                onSuccess = {
                     _state.value = _state.value.copy(
-                        lottoNumbers = result.data,
+                        lottoNumbers = it,
                         isLoading = false,
                         showDialog = true
                     )
-                }
-
-                is Result.Error -> {
+                },
+                onFailure = {
                     _state.value = _state.value.copy(
                         message = "값을 가져오는데 실패하였습니다",
                         isLoading = false
                     )
                 }
-            }
+            )
         }
     }
 
@@ -104,19 +103,19 @@ class SearchViewModel @Inject constructor(
         lottoNumbers: List<Pair<Int, Int>>
     ) {
         viewModelScope.launch {
-            when (val result = saveLottoItemUseCase(name, startNum, endNum, lottoNumbers)) {
-                is Result.Success -> {
+            val result = saveLottoItemUseCase(name, startNum, endNum, lottoNumbers)
+            result.fold(
+                onSuccess = {
                     _state.value = _state.value.copy(
                         message = "저장되었습니다"
                     )
-                }
-
-                is Result.Error -> {
+                },
+                onFailure = {
                     _state.value = _state.value.copy(
-                        message = result.exception.message ?: "저장에 실패했습니다"
+                        message = it.message ?: "저장에 실패했습니다"
                     )
                 }
-            }
+            )
         }
     }
 
