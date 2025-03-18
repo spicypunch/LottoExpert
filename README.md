@@ -9,9 +9,10 @@
 
 ## 기술 스택
 - Clean Architecture
-- MultiModule
+- Multi Module
 - Jetpack Compose
 - Hilt
+- Retrofit2
 - Room
 
 ## 프로젝트 소개
