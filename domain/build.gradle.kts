@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "kr.jm.domain"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24

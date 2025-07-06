@@ -10,16 +10,16 @@ plugins {
 
 android {
     namespace = "kr.jm.lottoexpert"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "kr.jm.lottoexpert"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 2
         versionName = "1.1"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "kr.jm.lottoexpert.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -83,6 +83,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.50")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.50")
 
 
     // navigation

@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "kt.jm.common_ui"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24

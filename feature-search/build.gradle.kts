@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "kr.jm.feature_search"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24

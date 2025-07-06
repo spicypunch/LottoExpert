@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "kr.jm.mylibrary"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 24
