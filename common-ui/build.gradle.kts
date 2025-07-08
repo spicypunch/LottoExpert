@@ -58,4 +58,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.7.0")
+    
+    // AdMob
+    implementation("com.google.android.gms:play-services-ads:23.5.0")
 }
