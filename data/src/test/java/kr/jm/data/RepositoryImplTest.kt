@@ -1,4 +1,4 @@
-package kr.jm.data.repository
+package kr.jm.data
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
