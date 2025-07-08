@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kr.jm.domain.model.ItemEntity
+import kt.jm.common_ui.AdMobBanner
 import kt.jm.common_ui.ListDialog
 
 @SuppressLint("RememberReturnType")
@@ -58,11 +60,23 @@ fun RecordScreenContent(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        LazyColumn(modifier = modifier.padding(16.dp)) {
-            itemsIndexed(state.items) { index, item ->
-                ItemList(item = item, lastItem = index == state.items.lastIndex, onDelete = {
-                    onEvent(RecordScreenEvent.DeleteItem(item))
-                })
+        Scaffold(
+            bottomBar = {
+                AdMobBanner(
+                    adUnitId = "ca-app-pub-3940256099942544/6300978111" // 테스트 광고 ID
+                )
+            }
+        ) { innerPadding ->
+            LazyColumn(
+                modifier = modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
+                itemsIndexed(state.items) { index, item ->
+                    ItemList(item = item, lastItem = index == state.items.lastIndex, onDelete = {
+                        onEvent(RecordScreenEvent.DeleteItem(item))
+                    })
+                }
             }
         }
         SnackbarHost(

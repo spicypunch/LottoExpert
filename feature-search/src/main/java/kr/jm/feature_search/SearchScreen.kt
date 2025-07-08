@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kt.jm.common_ui.AdMobBanner
 import kt.jm.common_ui.CircularProgressBar
 import kt.jm.common_ui.DefaultButton
 import kt.jm.common_ui.DefaultTextField
@@ -63,7 +64,13 @@ fun SearchScreenContent(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        Scaffold { innerPadding ->
+        Scaffold(
+            bottomBar = {
+                AdMobBanner(
+                    adUnitId = "ca-app-pub-3940256099942544/6300978111" // 테스트 광고 ID
+                )
+            }
+        ) { innerPadding ->
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
